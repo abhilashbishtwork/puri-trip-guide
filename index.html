@@ -697,47 +697,54 @@
       });
     }
 
-    function strikeBell(ac, t0, pitchMul, ampMul){
-      // inharmonic bell-metal partials; higher partials ring brighter but damp faster (real bell behaviour)
-      var partials = [[1.0,1.0,1.3],[1.5,0.55,0.95],[2.0,0.5,0.75],[2.4,0.32,0.6],[3.0,0.22,0.45],[4.2,0.14,0.3]];
-      var base = 1046 * pitchMul; // bright, high-pitched hand bell (ghanta), not a deep gong
+    function strikeBell(ac, t0, ampMul, sendNode){
+      // deep, resonant bell-metal partials with a long sacred bloom - one holy strike, not a bright chime
+      var partials = [[1.0,1.0,3.4],[1.5,0.6,2.8],[2.0,0.5,2.3],[2.4,0.34,1.8],[3.0,0.24,1.4],[4.2,0.13,1.0]];
+      var base = 349; // deep, grounded fundamental (F4-ish) - a temple bell, not a hand chime
       var group = ac.createGain();
       group.gain.value = ampMul;
       group.connect(ac.destination);
+      if (sendNode) group.connect(sendNode);
       partials.forEach(function(p){
         var o = ac.createOscillator();
         o.type = "sine";
         o.frequency.value = base * p[0];
         var og = ac.createGain();
         og.gain.setValueAtTime(p[1], t0);
-        og.gain.exponentialRampToValueAtTime(0.0008, t0 + p[2]);
+        og.gain.exponentialRampToValueAtTime(0.0006, t0 + p[2]);
         o.connect(og); og.connect(group);
         o.start(t0); o.stop(t0 + p[2] + 0.05);
       });
-      // metallic "clank" transient at the strike onset
-      var bufSize = Math.floor(ac.sampleRate * 0.025);
+      // soft metallic strike transient
+      var bufSize = Math.floor(ac.sampleRate * 0.03);
       var buffer = ac.createBuffer(1, bufSize, ac.sampleRate);
       var data = buffer.getChannelData(0);
       for (var i = 0; i < bufSize; i++){ data[i] = Math.random() * 2 - 1; }
       var noise = ac.createBufferSource();
       noise.buffer = buffer;
       var hp = ac.createBiquadFilter();
-      hp.type = "highpass"; hp.frequency.value = 3000;
+      hp.type = "highpass"; hp.frequency.value = 1800;
       var ng = ac.createGain();
-      ng.gain.setValueAtTime(0.3, t0);
-      ng.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.04);
+      ng.gain.setValueAtTime(0.22, t0);
+      ng.gain.exponentialRampToValueAtTime(0.0006, t0 + 0.05);
       noise.connect(hp); hp.connect(ng); ng.connect(group);
-      noise.start(t0); noise.stop(t0 + 0.04);
+      noise.start(t0); noise.stop(t0 + 0.05);
     }
 
     function playBell(){
       if (bgMuted) return;
       var ac = getCtx(); if (!ac) return;
       var t0 = ac.currentTime;
-      // three quick successive strikes, like a hand-rung temple bell (ghanta) shimmering as it's rung
-      strikeBell(ac, t0, 1.0, 0.55);
-      strikeBell(ac, t0 + 0.15, 1.015, 0.4);
-      strikeBell(ac, t0 + 0.32, 0.99, 0.28);
+      // a soft echo/space so the single strike feels like it's resonating through a temple hall
+      var delay = ac.createDelay(1.2);
+      delay.delayTime.value = 0.22;
+      var feedback = ac.createGain();
+      feedback.gain.value = 0.3;
+      var lp = ac.createBiquadFilter();
+      lp.type = "lowpass"; lp.frequency.value = 1800;
+      delay.connect(lp); lp.connect(feedback); feedback.connect(delay);
+      delay.connect(ac.destination);
+      strikeBell(ac, t0, 0.7, delay);
     }
 
     function beginJourney(){
