@@ -312,20 +312,24 @@
           <div class="t2">8&ndash;17 Sep &middot; Bhubaneswar &amp; Puri</div>
         </div>
       </div>
-      <div class="menu-wrap">
-        <button class="icon-btn" id="menuBtn" aria-label="Change view">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-        </button>
-        <div class="view-menu" id="viewMenu">
-          <button data-view="day"><span class="vi">📅</span> Day by day</button>
-          <button data-view="journeyMap"><span class="vi">🗺️</span> Journey map</button>
-          <button data-view="travel"><span class="vi">✈️</span> Travel &amp; tickets</button>
-          <button data-view="stay"><span class="vi">🏨</span> Hotels &amp; food</button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="icon-btn" id="bgMuteBtn" aria-label="Toggle background music">🔊</button>
+        <div class="menu-wrap">
+          <button class="icon-btn" id="menuBtn" aria-label="Change view">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          </button>
+          <div class="view-menu" id="viewMenu">
+            <button data-view="day"><span class="vi">📅</span> Day by day</button>
+            <button data-view="journeyMap"><span class="vi">🗺️</span> Journey map</button>
+            <button data-view="travel"><span class="vi">✈️</span> Travel &amp; tickets</button>
+            <button data-view="stay"><span class="vi">🏨</span> Hotels &amp; food</button>
+          </div>
         </div>
       </div>
     </div>
     <div class="day-strip" id="dayStrip"></div>
   </header>
+  <audio id="bgMusic" src="audio/temple-ambience.wav" loop preload="auto"></audio>
 
   <main id="main"></main>
 
@@ -607,6 +611,33 @@
     window.addEventListener("load", function(){ navigator.serviceWorker.register("service-worker.js").catch(function(){}); });
   }
 
+  /* ---------------- background music (shared with splash) ---------------- */
+  var bgMusic = document.getElementById("bgMusic");
+  bgMusic.volume = 0.32;
+  var bgMuteBtn = document.getElementById("bgMuteBtn");
+  var bgMuted = false;
+  try{ bgMuted = localStorage.getItem("puriYatraMuted") === "1"; }catch(e){}
+  var bgStarted = false;
+
+  function updateBgMuteBtn(){ bgMuteBtn.textContent = bgMuted ? "🔇" : "🔊"; }
+  updateBgMuteBtn();
+
+  function startBgMusic(){
+    bgStarted = true;
+    if (bgMuted) return;
+    bgMusic.play().catch(function(){});
+  }
+
+  function setBgMuted(val){
+    bgMuted = val;
+    try{ localStorage.setItem("puriYatraMuted", bgMuted ? "1" : "0"); }catch(e){}
+    updateBgMuteBtn();
+    if (bgMuted){ bgMusic.pause(); }
+    else if (bgStarted){ bgMusic.play().catch(function(){}); }
+  }
+
+  bgMuteBtn.addEventListener("click", function(){ setBgMuted(!bgMuted); });
+
   /* ================= SPLASH SEQUENCE + SOUND ================= */
   (function(){
     var splash = document.getElementById("splash");
@@ -619,16 +650,13 @@
     var muteLbl = document.getElementById("muteLbl");
     var skipBtn = document.getElementById("skipBtn");
     var played = false;
-    var muted = false;
-    try{ muted = localStorage.getItem("puriYatraMuted") === "1"; }catch(e){}
-    updateMuteUI();
 
-    function updateMuteUI(){ muteBtn.firstChild.textContent = muted ? "🔇 " : "🔊 "; muteLbl.textContent = muted ? "Sound off" : "Sound on"; }
+    function updateMuteUI(){ muteBtn.firstChild.textContent = bgMuted ? "🔇 " : "🔊 "; muteLbl.textContent = bgMuted ? "Sound off" : "Sound on"; }
+    updateMuteUI();
 
     muteBtn.addEventListener("click", function(e){
       e.stopPropagation();
-      muted = !muted;
-      try{ localStorage.setItem("puriYatraMuted", muted ? "1" : "0"); }catch(err){}
+      setBgMuted(!bgMuted);
       updateMuteUI();
     });
 
@@ -642,7 +670,7 @@
     }
 
     function playOm(){
-      if (muted) return;
+      if (bgMuted) return;
       var ac = getCtx(); if (!ac) return;
       var t0 = ac.currentTime;
       var master = ac.createGain();
@@ -670,7 +698,7 @@
     }
 
     function playBell(){
-      if (muted) return;
+      if (bgMuted) return;
       var ac = getCtx(); if (!ac) return;
       var t0 = ac.currentTime;
       var g = ac.createGain();
@@ -694,6 +722,7 @@
       played = true;
       splash.classList.add("playing");
       getCtx(); // unlock audio on user gesture
+      startBgMusic();
       playOm();
       diya.classList.add("launch");
       setTimeout(function(){ flash.classList.add("burst"); }, 550);
@@ -708,7 +737,7 @@
       setTimeout(function(){ splash.style.display = "none"; }, 750);
     }
 
-    skipBtn.addEventListener("click", function(e){ e.stopPropagation(); finish(); });
+    skipBtn.addEventListener("click", function(e){ e.stopPropagation(); getCtx(); startBgMusic(); finish(); });
     splash.addEventListener("click", function(e){
       if (e.target === muteBtn || e.target === skipBtn || muteBtn.contains(e.target) || skipBtn.contains(e.target)) return;
       beginJourney();
