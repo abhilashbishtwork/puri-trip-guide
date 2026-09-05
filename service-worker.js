@@ -1,5 +1,5 @@
-const CACHE = "puri-yatra-v2";
-const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./audio/temple-ambience.wav"];
+const CACHE = "puri-yatra-v3";
+const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./audio/saffron-and-stone.mp3"];
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();
