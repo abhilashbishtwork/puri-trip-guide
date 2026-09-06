@@ -835,7 +835,7 @@
 
   function renderBudgetView(){
     if (budgetRows === null && !budgetLoading){ fetchBudget(); }
-    var html = '<div class="day-head"><div class="eyebrow">Shared with everyone using this app</div><h1>Budget</h1></div>';
+    var html = '<div class="day-head"><h1>Budget</h1></div>';
 
     if (budgetLoading && budgetRows === null){
       html += '<div class="map-hint">Loading shared expenses…</div>';
