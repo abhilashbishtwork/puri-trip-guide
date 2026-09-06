@@ -307,8 +307,8 @@
   .map-node .lbl{margin-top:6px; font-size:11.5px; font-weight:600; text-align:center; line-height:1.25; color:var(--ink);}
   .map-node .sub{font-size:10px; color:var(--ink-faint); text-align:center;}
 
-  .map-hint{margin-top:18px; padding:14px 16px; border-radius:14px; background:var(--surface-2); color:var(--ink-soft); font-size:13.5px; text-align:center;}
-  .map-detail-wrap{margin-top:18px;}
+  .map-hint{padding:14px 16px; border-radius:14px; background:var(--surface-2); color:var(--ink-soft); font-size:13.5px; text-align:center;}
+  .map-detail-wrap{margin-bottom:14px;}
   .map-detail{background:var(--surface); border:1px solid var(--line-strong); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow);}
   .map-detail h3{font-size:18px; margin:2px 0 10px;}
   .md-chip{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:6px 12px; border-radius:100px; background:var(--sea-soft); color:var(--sea); margin:0 6px 8px 0;}
@@ -325,6 +325,17 @@
   .hotel-stay{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 2px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-soft);}
   .hotel-stay:first-of-type{border-top:1px solid var(--line);}
   .pdf-link{color:var(--sea); font-weight:600; text-decoration:none; flex:none;}
+
+  .budget-grand{font-size:26px; font-weight:700; color:var(--ink); margin:4px 0 0; font-variant-numeric:tabular-nums;}
+  .budget-day{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;}
+  .budget-day-head{display:flex; justify-content:space-between; padding:10px 16px; background:var(--surface-2); font-weight:700; font-size:14px;}
+  .budget-day-head span:last-child{font-variant-numeric:tabular-nums;}
+  .budget-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 16px; border-top:1px solid var(--line);}
+  .budget-amt{font-weight:600; font-variant-numeric:tabular-nums; flex:none;}
+  .budget-form{display:flex; flex-direction:column; gap:9px; margin-top:8px;}
+  .budget-form input{padding:10px 12px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg); color:var(--ink); font-size:14.5px; font-family:inherit;}
+  .budget-submit{padding:11px; border-radius:11px; border:none; background:var(--accent); color:var(--accent-ink); font-weight:700; font-size:14.5px; cursor:pointer;}
+  .bf-status{font-size:12.5px; color:var(--ink-soft); min-height:16px;}
 
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 </style>
@@ -371,6 +382,7 @@
             <button data-view="journeyMap"><span class="vi">🗺️</span> Journey map</button>
             <button data-view="travel"><span class="vi">✈️</span> Travel &amp; tickets</button>
             <button data-view="stay"><span class="vi">🏨</span> Hotels &amp; food</button>
+            <button data-view="budget"><span class="vi">💰</span> Budget</button>
           </div>
         </div>
       </div>
@@ -400,7 +412,7 @@
       },
       transport:{mode:"flight", label:"✈️ Flight — Akasa QP-1503, BLR → BBI, 13:35"},
       hotelTonight:"Panthanivas Bhubaneswar",
-      route:["Bengaluru","Kempegowda International Airport","Biju Patnaik International Airport Bhubaneswar"],
+      route:["Fernhill Gardens Apartment, HSR Layout, Bangalore","Kempegowda International Airport, Bengaluru","Biju Patnaik International Airport, Bhubaneswar","Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar"],
       slots:[
         {slot:"Morning", where:"Home, Bengaluru", items:["Relaxed breakfast at home","Head to Bengaluru airport (BLR) for the 13:35 flight"], tip:null, warn:null},
         {slot:"Afternoon", where:"BLR → BBI → Panthanivas Bhubaneswar", items:["Flight to Bhubaneswar (Akasa QP-1503)","Drive to Panthanivas Bhubaneswar and check in"], tip:"Grab a window seat — nice aerial shots on descent into Bhubaneswar.", warn:"Check-in opens at 11:00 AM — no issue today since you land at 15:45."},
@@ -410,7 +422,7 @@
     { day:"Day 2", short:"D2", date:"Wed 9 Sep", iso:"2026-09-09", theme:"Full day in Bhubaneswar — no rush", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Bhubaneswar"},
       hotelTonight:"Panthanivas Bhubaneswar",
-      route:["Panthanivas Bhubaneswar","Rajarani Temple","Mukteshwar Temple","Wildgrass Restaurant","Lingaraj Temple","Dhauli Peace Pagoda"],
+      route:["Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar","Rajarani Temple, Bhubaneswar","Mukteshwar Temple, Bhubaneswar","Wildgrass Restaurant, Bhubaneswar","Lingaraj Temple, Bhubaneswar","Dhauli Peace Pagoda, Bhubaneswar"],
       slots:[
         {slot:"Morning", where:"Rajarani &amp; Mukteshwar Temples", items:["Breakfast at the hotel","Rajarani Temple — carved sandstone, usually very few crowds","Mukteshwar Temple — the famous carved arch"], tip:"Best photo spot of the day: Rajarani's carvings in soft morning light.", warn:null},
         {slot:"Afternoon", where:"Wildgrass, Lingaraj, Dhauli", items:["Odia thali lunch at Wildgrass Restaurant","Lingaraj Temple — view from outside","Dhauli Peace Pagoda — flat, easy walk"], tip:"This is a full day here on purpose — take it slow, no need to rush between stops.", warn:null},
@@ -420,7 +432,7 @@
     { day:"Day 3", short:"D3", date:"Thu 10 Sep", iso:"2026-09-10", theme:"On to Puri", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Bhubaneswar → Puri, ~1.5 hrs"},
       hotelTonight:"Panthanivas Puri",
-      route:["Panthanivas Bhubaneswar","Panthanivas Puri, Chakratirtha Road"],
+      route:["Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar","Panthanivas Puri, Chakratirtha Road, Puri"],
       slots:[
         {slot:"Morning", where:"Panthanivas Bhubaneswar", items:["Breakfast at the hotel","Check out by 9:00 AM"], tip:null, warn:"Standard check-out here is 9:00 AM. Late check-out runs ~₹250/hr after a 1-hour grace period — worth checking out on time."},
         {slot:"Afternoon", where:"Drive to Puri (~1.5 hrs)", items:["Drive from Bhubaneswar to Puri","Check in to Panthanivas Puri, Chakratirtha Road (check-in opens 11:00 AM)"], tip:null, warn:null},
@@ -430,7 +442,7 @@
     { day:"Day 4", short:"D4", date:"Fri 11 Sep", iso:"2026-09-11", theme:"Jagannath Temple darshan", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Puri"},
       hotelTonight:"Panthanivas Puri",
-      route:["Panthanivas Puri","Jagannath Temple, Puri"],
+      route:["Panthanivas Puri, Chakratirtha Road, Puri","Jagannath Temple, Puri"],
       slots:[
         {slot:"Morning", where:"Jagannath Temple", items:["Early breakfast","Jagannath Temple darshan — go early to beat the heat and crowds","Walk the outer wall and temple market lanes (Meghanad Pacheri)"], tip:"Photos are fine along Meghanad Pacheri, outside the temple walls.", warn:"No phones or cameras allowed inside the temple — deposit them at the counter outside first."},
         {slot:"Afternoon", where:"Anand Bazar", items:["Mahaprasad lunch at Anand Bazar — 100% vegetarian, cooked in the temple kitchens"], tip:"Film the market itself — one of Puri's most iconic scenes.", warn:"Small vendors mostly take cash."},
@@ -440,7 +452,7 @@
     { day:"Day 5", short:"D5", date:"Sat 12 Sep", iso:"2026-09-12", theme:"On to Konark, via Raghurajpur", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Puri → Konark via Raghurajpur, ~1 hr"},
       hotelTonight:"Panthanivas Konark",
-      route:["Panthanivas Puri","Raghurajpur Heritage Village","Panthanivas Konark"],
+      route:["Panthanivas Puri, Chakratirtha Road, Puri","Raghurajpur Heritage Craft Village, Puri district","Panthanivas Konark, Konark"],
       slots:[
         {slot:"Morning", where:"Panthanivas Puri", items:["Breakfast at the hotel","Check out by 9:00 AM"], tip:null, warn:"Same 9:00 AM check-out policy here — ~₹250/hr if you run past the grace period."},
         {slot:"Afternoon", where:"Raghurajpur → Konark (~35 km)", items:["Drive to Konark, stopping at Raghurajpur Heritage Crafts Village on the way","Check in to Panthanivas Konark (check-in opens 11:00 AM)"], tip:"Watch the Pattachitra painters at work in Raghurajpur — unhurried, and great for photos.", warn:null},
@@ -450,7 +462,7 @@
     { day:"Day 6", short:"D6", date:"Sun 13 Sep", iso:"2026-09-13", theme:"Konark Sun Temple, unhurried", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Konark"},
       hotelTonight:"Panthanivas Konark",
-      route:["Panthanivas Konark","Konark Sun Temple","Chandrabhaga Beach"],
+      route:["Panthanivas Konark, Konark","Konark Sun Temple, Konark","Chandrabhaga Beach, Konark"],
       slots:[
         {slot:"Morning", where:"Konark Sun Temple", items:["Breakfast, then walk over to the Sun Temple — no travel needed, you're staying in Konark"], tip:"The carved stone wheels are the single best photo of the whole trip.", warn:"Some walking on uneven stone — comfortable shoes help."},
         {slot:"Afternoon", where:"Chandrabhaga Beach", items:["Chandrabhaga Beach — quiet, uncrowded"], tip:"Good contrast footage against Puri's busier beach.", warn:null},
@@ -460,7 +472,7 @@
     { day:"Day 7", short:"D7", date:"Mon 14 Sep", iso:"2026-09-14", theme:"Chilika Lake, then back to Puri", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Konark → Satapada → Puri, ~3.5 hrs total"},
       hotelTonight:"Panthanivas Puri (2nd stay)",
-      route:["Panthanivas Konark","Satapada, Chilika Lake","Panthanivas Puri"],
+      route:["Panthanivas Konark, Konark","Satapada, Chilika Lake, Puri district","Panthanivas Puri, Chakratirtha Road, Puri"],
       slots:[
         {slot:"Morning", where:"Panthanivas Konark", items:["Breakfast at the hotel","Check out by 9:00 AM","Drive towards Satapada, Chilika Lake"], tip:null, warn:"Same 9:00 AM check-out — ~₹250/hr if you run late. This is a long day out — start early."},
         {slot:"Afternoon", where:"Satapada → Puri", items:["Irrawaddy dolphin boat safari on Chilika Lake at Satapada","Drive on to Puri","Check in to Panthanivas Puri (second stay, one night, check-in opens 11:00 AM)"], tip:"Dolphin spotting is the highlight of the day — keep the phone charged.", warn:"A full day out with real driving distance — pack light rain gear (monsoon season) and keep it flexible."},
@@ -470,7 +482,7 @@
     { day:"Day 8", short:"D8", date:"Tue 15 Sep", iso:"2026-09-15", theme:"Back to Bhubaneswar, via Alarnath &amp; Pipili", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Puri → Bhubaneswar via Alarnath &amp; Pipili, ~2 hrs"},
       hotelTonight:"Panthanivas Bhubaneswar (2nd stay)",
-      route:["Panthanivas Puri","Alarnath Temple","Pipili craft market","Panthanivas Bhubaneswar"],
+      route:["Panthanivas Puri, Chakratirtha Road, Puri","Alarnath Temple, Brahmagiri, Puri district","Pipili, Puri district","Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar"],
       slots:[
         {slot:"Morning", where:"Panthanivas Puri", items:["Breakfast at the hotel","Check out by 9:00 AM"], tip:null, warn:"Same 9:00 AM check-out policy — ~₹250/hr if you run past the grace period."},
         {slot:"Afternoon", where:"Alarnath &amp; Pipili → Bhubaneswar (~2 hrs)", items:["Drive to Bhubaneswar, stopping at the quiet Alarnath Temple and Pipili's applique-craft market on the way","Check in to Panthanivas Bhubaneswar (second stay, check-in opens 11:00 AM)"], tip:"Pipili's colourful umbrellas and lampshades are a great last craft-market stop.", warn:"Alarnath Temple is small and quiet — easy, unhurried visit."},
@@ -480,7 +492,7 @@
     { day:"Day 9", short:"D9", date:"Wed 16 Sep", iso:"2026-09-16", theme:"Rest day in Bhubaneswar", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Bhubaneswar"},
       hotelTonight:"Panthanivas Bhubaneswar (2nd stay)",
-      route:["Panthanivas Bhubaneswar"],
+      route:["Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar"],
       slots:[
         {slot:"Morning", where:"Bhubaneswar", items:["No excursion today — sleep in, relax at the hotel"], tip:null, warn:null},
         {slot:"Afternoon", where:"Bhubaneswar", items:["Optional: revisit a favourite spot, or just rest"], tip:null, warn:"Nothing is booked today on purpose — a genuine buffer day before flying out tomorrow."},
@@ -492,7 +504,7 @@
       },
       transport:{mode:"flight", label:"✈️ Flight — IndiGo 6E-6536, BBI → BLR, 14:15"},
       hotelTonight:"—  (flying home tonight)",
-      route:["Panthanivas Bhubaneswar","Biju Patnaik International Airport Bhubaneswar","Kempegowda International Airport Bengaluru"],
+      route:["Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar","Biju Patnaik International Airport, Bhubaneswar","Kempegowda International Airport, Bengaluru","Fernhill Gardens Apartment, HSR Layout, Bangalore"],
       slots:[
         {slot:"Morning", where:"Panthanivas Bhubaneswar", items:["Relaxed breakfast","Pack at leisure"], tip:null, warn:null},
         {slot:"Afternoon", where:"Hotel → BBI → BLR", items:["Call the hotel ahead to request a ~2-hour late check-out extension (standard is 9:00 AM, extend to ~11:00 AM) — ~₹250/hr fee","Short cab to Biju Patnaik International Airport","Flight home (IndiGo 6E-6536)"], tip:null, warn:"Standard check-out is 9:00 AM but the flight is 14:15 — arrange the late check-out extension in advance, don't leave it to the morning of."},
@@ -550,6 +562,11 @@
        {dates:"12–14 Sep", id:"06092026H0094320", pdf:"https://drive.google.com/file/d/1J6dqtIsi9u51fcftXJp0pTc8j-bfgiBX/view"}
      ]}
   ];
+
+  var BUDGET_API_URL = "https://script.google.com/macros/s/AKfycbxl3okkv5FPw6FrU_OhLCkeZFPMIguHNnNQufIIQx4qnIv-rpeK31YYYDVBcoKtwusn/exec";
+  var budgetRows = null;
+  var budgetLoading = false;
+  var budgetError = null;
 
   var SLOT_GLYPH = {Morning:"☀️", Afternoon:"⛱️", Evening:"🌙"};
   var current = 0;
@@ -693,15 +710,15 @@
     }).join("");
     var detailHtml = mapExpanded !== null
       ? renderMapDetail(mapExpanded)
-      : '<div class="map-hint">👆 Tap any day above — see what to do, how you get there, and where you sleep that night.</div>';
-    return '<div class="map-wrap" style="min-height:'+svgH+'px;">'
+      : '<div class="map-hint">👆 Tap any day below — see what to do, how you get there, and where you sleep that night.</div>';
+    return '<div class="map-detail-wrap" id="mapDetailWrap">'+detailHtml+'</div>'
+      + '<div class="map-wrap" style="min-height:'+svgH+'px;">'
       + '<div class="map-title"><div class="eyebrow">The full yatra</div><h1>Ten days, two cities</h1></div>'
       + '<svg class="map-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M12 7l2.2 4.8L19 14l-4.8 2.2L12 21l-2.2-4.8L5 14l4.8-2.2z" fill="currentColor" opacity=".3"/></svg>'
       + '<svg class="map-svg" viewBox="0 0 '+svgW+' '+svgH+'" style="position:absolute; top:64px; left:0; height:'+svgH+'px;" preserveAspectRatio="none">'
       + '<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="1 10" stroke-linecap="round" opacity="0.85"/>'
       + '</svg>'
       + '<div style="position:relative; height:'+svgH+'px;">'+nodesHtml+'</div>'
-      + '<div class="map-detail-wrap">'+detailHtml+'</div>'
       + '</div>';
   }
 
@@ -771,6 +788,89 @@
       + '<div class="stay-table">' + rowsHtml + '</div>';
   }
 
+  function fetchBudget(){
+    budgetLoading = true;
+    budgetError = null;
+    fetch(BUDGET_API_URL + "?action=budget")
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        budgetLoading = false;
+        if (data.ok){ budgetRows = data.rows; } else { budgetError = data.error || "Unknown error"; }
+        if (viewMode === "budget") render(true);
+      })
+      .catch(function(err){
+        budgetLoading = false;
+        budgetError = String(err);
+        if (viewMode === "budget") render(true);
+      });
+  }
+
+  function submitBudget(date, expense, details, amount){
+    var body = new URLSearchParams();
+    body.set("action", "addBudget");
+    body.set("date", date);
+    body.set("expense", expense);
+    body.set("details", details);
+    body.set("amount", amount);
+    return fetch(BUDGET_API_URL, { method:"POST", body:body })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.ok){ budgetRows = data.rows; }
+        return data;
+      });
+  }
+
+  function renderBudgetView(){
+    if (budgetRows === null && !budgetLoading){ fetchBudget(); }
+    var html = '<div class="day-head"><div class="eyebrow">Shared with everyone using this app</div><h1>Budget</h1></div>';
+
+    if (budgetLoading && budgetRows === null){
+      html += '<div class="map-hint">Loading shared expenses…</div>';
+      return html;
+    }
+    if (budgetError && budgetRows === null){
+      html += '<div class="callout warn"><span class="ic">&#9888;</span><span>Could not load expenses: '+budgetError+'</span></div>';
+    }
+
+    var rows = budgetRows || [];
+    var grand = 0;
+    var byDate = [];
+    var dateIndex = {};
+    rows.forEach(function(r){
+      grand += r.amount;
+      if (!(r.date in dateIndex)){ dateIndex[r.date] = byDate.length; byDate.push({date:r.date, items:[], total:0}); }
+      var grp = byDate[dateIndex[r.date]];
+      grp.items.push(r);
+      grp.total += r.amount;
+    });
+
+    html += '<div class="info-card"><h4>💰 Total spent so far</h4><p class="budget-grand">₹'+grand.toLocaleString('en-IN')+'</p></div>';
+
+    byDate.forEach(function(grp){
+      html += '<div class="budget-day"><div class="budget-day-head"><span>'+grp.date+'</span><span>₹'+grp.total.toLocaleString('en-IN')+'</span></div>';
+      grp.items.forEach(function(it){
+        html += '<div class="budget-row"><div><div class="tr-label">'+it.expense+'</div><div class="tr-sub">'+(it.details||"")+'</div></div><div class="budget-amt">₹'+it.amount.toLocaleString('en-IN')+'</div></div>';
+      });
+      html += '</div>';
+    });
+
+    if (!rows.length && !budgetLoading){
+      html += '<div class="map-hint">No expenses logged yet — add the first one below.</div>';
+    }
+
+    html += '<div class="info-card"><h4>➕ Add an expense</h4>'
+      + '<form id="budgetForm" class="budget-form">'
+      +   '<input type="text" id="bf-date" placeholder="Date (e.g. 10 Sep)" required>'
+      +   '<input type="text" id="bf-expense" placeholder="Expense (e.g. Flight, Cab, Food)" required>'
+      +   '<input type="text" id="bf-details" placeholder="Details (e.g. BLR to BBI)">'
+      +   '<input type="number" id="bf-amount" placeholder="Amount (₹)" required>'
+      +   '<button type="submit" class="budget-submit">Save — updates for everyone</button>'
+      +   '<div id="bf-status" class="bf-status"></div>'
+      + '</form></div>';
+
+    return html;
+  }
+
   function render(keepScroll){
     renderProgressStrip();
     renderDayStrip();
@@ -778,6 +878,7 @@
     if (viewMode === "day") html = renderDayView();
     else if (viewMode === "journeyMap") html = renderJourneyMap();
     else if (viewMode === "travel") html = renderTravelView();
+    else if (viewMode === "budget") html = renderBudgetView();
     else html = renderStayView();
     document.getElementById("main").innerHTML = html;
 
@@ -812,6 +913,25 @@
         });
       });
     }
+    if (viewMode === "budget"){
+      var bForm = document.getElementById("budgetForm");
+      if (bForm){
+        bForm.addEventListener("submit", function(ev){
+          ev.preventDefault();
+          var date = document.getElementById("bf-date").value.trim();
+          var expense = document.getElementById("bf-expense").value.trim();
+          var details = document.getElementById("bf-details").value.trim();
+          var amount = document.getElementById("bf-amount").value.trim();
+          var status = document.getElementById("bf-status");
+          if (!date || !expense || !amount){ status.textContent = "Fill in date, expense and amount."; return; }
+          status.textContent = "Saving…";
+          submitBudget(date, expense, details, amount).then(function(data){
+            if (data.ok){ render(true); }
+            else { status.textContent = "Could not save: " + (data.error || "unknown error"); }
+          }).catch(function(err){ status.textContent = "Could not save: " + err; });
+        });
+      }
+    }
     if (viewMode === "travel"){
       document.querySelectorAll(".status-pill.toggle").forEach(function(btn){
         btn.addEventListener("click", function(){
@@ -830,7 +950,7 @@
         el.addEventListener("click", function(){
           var idx = parseInt(el.getAttribute("data-jump"), 10);
           mapExpanded = (mapExpanded === idx) ? null : idx;
-          render(true);
+          render();
         });
       });
       var openBtn = document.querySelector(".md-open");
