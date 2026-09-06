@@ -249,6 +249,8 @@
   .status-pill{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:100px; text-transform:uppercase; letter-spacing:.03em;}
   .status-pill.ok{background:var(--good-soft); color:var(--good);}
   .status-pill.pend{background:var(--warn-soft); color:var(--warn);}
+  .status-pill.toggle{border:none; font-family:inherit; cursor:pointer; -webkit-appearance:none; appearance:none;}
+  .status-pill.toggle:active{transform:scale(0.96);}
   .travel-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 4px; border-bottom:1px solid var(--line);}
   .travel-row:last-child{border-bottom:none;}
   .travel-row .tr-label{font-size:14.5px; font-weight:500;}
@@ -283,13 +285,36 @@
   .map-svg{display:block; width:100%; height:auto;}
   .map-node{position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; cursor:pointer; width:120px;}
   .map-node .dot{
-    width:38px; height:38px; border-radius:50%; background:var(--surface); border:2.5px solid var(--sea);
-    display:flex; align-items:center; justify-content:center; font-family:"Fraunces",serif; font-weight:700; font-size:14px; color:var(--sea);
-    box-shadow:var(--shadow);
+    width:44px; height:44px; border-radius:50%; background:var(--surface); border:2.5px solid var(--sea);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--sea);
+    box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s;
   }
+  .map-node .dot .dnum{font-family:"Fraunces",serif; font-weight:700; font-size:16px; line-height:1;}
+  .map-node .dot .dmon{font-size:8px; font-weight:600; letter-spacing:.04em; opacity:.75; margin-top:1px;}
   .map-node.base .dot{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .map-node:active .dot{transform:scale(0.92);}
+  .map-node.expanded .dot{box-shadow:0 0 0 5px var(--accent-soft), var(--shadow); transform:scale(1.08);}
   .map-node .lbl{margin-top:6px; font-size:11.5px; font-weight:600; text-align:center; line-height:1.25; color:var(--ink);}
   .map-node .sub{font-size:10px; color:var(--ink-faint); text-align:center;}
+
+  .map-hint{margin-top:18px; padding:14px 16px; border-radius:14px; background:var(--surface-2); color:var(--ink-soft); font-size:13.5px; text-align:center;}
+  .map-detail-wrap{margin-top:18px;}
+  .map-detail{background:var(--surface); border:1px solid var(--line-strong); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow);}
+  .map-detail h3{font-size:18px; margin:2px 0 10px;}
+  .md-chip{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:6px 12px; border-radius:100px; background:var(--sea-soft); color:var(--sea); margin:0 6px 8px 0;}
+  .md-chip.hotel{background:var(--accent-soft); color:var(--accent-ink);}
+  .md-list{list-style:none; margin:10px 0 14px; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .md-list li{font-size:13.5px; color:var(--ink-soft); line-height:1.5;}
+  .md-list li b{color:var(--ink); font-weight:600;}
+  .md-open{width:100%; padding:11px; border-radius:11px; border:none; background:var(--accent); color:var(--accent-ink); font-weight:700; font-size:14.5px; cursor:pointer;}
+
+  .hotel-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 16px; margin-bottom:12px;}
+  .hotel-card-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
+  .hotel-actions{display:flex; gap:8px; margin-bottom:10px;}
+  .hotel-btn{flex:1; text-align:center; padding:9px 10px; border-radius:10px; background:var(--surface-2); border:1px solid var(--line-strong); color:var(--sea); font-size:13px; font-weight:600; text-decoration:none;}
+  .hotel-stay{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 2px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-soft);}
+  .hotel-stay:first-of-type{border-top:1px solid var(--line);}
+  .pdf-link{color:var(--sea); font-weight:600; text-decoration:none; flex:none;}
 
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 </style>
@@ -362,30 +387,38 @@
     { day:"Day 1", short:"D1", date:"Tue 8 Sep", theme:"Fly in from Bangalore", base:true, flight:{
         from:"BLR", to:"BBI", airline:"Akasa Air QP-1503", depart:"13:35", arrive:"15:45", pnr:"IBUS2K"
       },
+      transport:{mode:"flight", label:"✈️ Flight — Akasa QP-1503, BLR → BBI, 13:35"},
+      hotelTonight:"Panthanivas Bhubaneswar",
       route:["Bengaluru","Kempegowda International Airport","Biju Patnaik International Airport Bhubaneswar"],
       slots:[
         {slot:"Morning", where:"Home, Bengaluru", items:["Relaxed breakfast at home","Head to Bengaluru airport (BLR) for the 13:35 flight"], tip:null, warn:null},
-        {slot:"Afternoon", where:"BLR → BBI → Panthanivas Bhubaneswar", items:["Flight to Bhubaneswar (Akasa QP-1503)","Drive to Panthanivas Bhubaneswar and check in"], tip:"Grab a window seat — nice aerial shots on descent into Bhubaneswar.", warn:null},
+        {slot:"Afternoon", where:"BLR → BBI → Panthanivas Bhubaneswar", items:["Flight to Bhubaneswar (Akasa QP-1503)","Drive to Panthanivas Bhubaneswar and check in"], tip:"Grab a window seat — nice aerial shots on descent into Bhubaneswar.", warn:"Check-in opens at 11:00 AM — no issue today since you land at 15:45."},
         {slot:"Evening", where:"Bhubaneswar", items:["Settle in, no plans tonight","Optional: short walk at Ekamra Kanan Botanical Garden"], tip:null, warn:"Keep tonight light — it's been a travel day."}
       ]
     },
     { day:"Day 2", short:"D2", date:"Wed 9 Sep", theme:"Full day in Bhubaneswar — no rush", flight:null,
+      transport:{mode:"none", label:"🏨 No travel today — staying in Bhubaneswar"},
+      hotelTonight:"Panthanivas Bhubaneswar",
       route:["Panthanivas Bhubaneswar","Rajarani Temple","Mukteshwar Temple","Wildgrass Restaurant","Lingaraj Temple","Dhauli Peace Pagoda"],
       slots:[
         {slot:"Morning", where:"Rajarani &amp; Mukteshwar Temples", items:["Breakfast at the hotel","Rajarani Temple — carved sandstone, usually very few crowds","Mukteshwar Temple — the famous carved arch"], tip:"Best photo spot of the day: Rajarani's carvings in soft morning light.", warn:null},
         {slot:"Afternoon", where:"Wildgrass, Lingaraj, Dhauli", items:["Odia thali lunch at Wildgrass Restaurant","Lingaraj Temple — view from outside","Dhauli Peace Pagoda — flat, easy walk"], tip:"This is a full day here on purpose — take it slow, no need to rush between stops.", warn:"Only Hindus may enter Lingaraj's inner sanctum — outside view only."},
-        {slot:"Evening", where:"Panthanivas Bhubaneswar", items:["Relaxed dinner","Early night — travel to Puri tomorrow"], tip:null, warn:null}
+        {slot:"Evening", where:"Panthanivas Bhubaneswar", items:["Relaxed dinner","Early night — check-out is 9:00 AM tomorrow"], tip:null, warn:null}
       ]
     },
     { day:"Day 3", short:"D3", date:"Thu 10 Sep", theme:"On to Puri", base:true, flight:null,
+      transport:{mode:"cab", label:"🚕 Intercity taxi — Bhubaneswar → Puri, ~1.5 hrs"},
+      hotelTonight:"Panthanivas Puri",
       route:["Panthanivas Bhubaneswar","Panthanivas Puri, Chakratirtha Road"],
       slots:[
-        {slot:"Morning", where:"Panthanivas Bhubaneswar", items:["Relaxed breakfast, no early start needed","Check out of Panthanivas Bhubaneswar"], tip:null, warn:null},
-        {slot:"Afternoon", where:"Drive to Puri (~1.5 hrs)", items:["Drive from Bhubaneswar to Puri","Check in to Panthanivas Puri, Chakratirtha Road"], tip:null, warn:null},
+        {slot:"Morning", where:"Panthanivas Bhubaneswar", items:["Breakfast at the hotel","Check out by 9:00 AM"], tip:null, warn:"Standard check-out here is 9:00 AM. Late check-out runs ~₹250/hr after a 1-hour grace period — worth checking out on time."},
+        {slot:"Afternoon", where:"Drive to Puri (~1.5 hrs)", items:["Drive from Bhubaneswar to Puri","Check in to Panthanivas Puri, Chakratirtha Road (check-in opens 11:00 AM)"], tip:null, warn:null},
         {slot:"Evening", where:"Puri Beach (Golden Beach)", items:["Sunset walk on Puri Beach"], tip:"The best sunset of the whole trip — have the camera ready.", warn:null}
       ]
     },
     { day:"Day 4", short:"D4", date:"Fri 11 Sep", theme:"Jagannath Temple darshan", flight:null,
+      transport:{mode:"none", label:"🏨 No travel today — staying in Puri"},
+      hotelTonight:"Panthanivas Puri",
       route:["Panthanivas Puri","Jagannath Temple, Puri"],
       slots:[
         {slot:"Morning", where:"Jagannath Temple", items:["Early breakfast","Jagannath Temple darshan — go early to beat the heat and crowds","Walk the outer wall and temple market lanes (Meghanad Pacheri)"], tip:"Photos are fine along Meghanad Pacheri, outside the temple walls.", warn:"No phones or cameras allowed inside the temple — deposit them at the counter outside first."},
@@ -394,14 +427,18 @@
       ]
     },
     { day:"Day 5", short:"D5", date:"Sat 12 Sep", theme:"On to Konark, via Raghurajpur", base:true, flight:null,
+      transport:{mode:"cab", label:"🚕 Intercity taxi — Puri → Konark via Raghurajpur, ~1 hr"},
+      hotelTonight:"Panthanivas Konark",
       route:["Panthanivas Puri","Raghurajpur Heritage Village","Panthanivas Konark"],
       slots:[
-        {slot:"Morning", where:"Panthanivas Puri", items:["Breakfast, check out of Panthanivas Puri"], tip:null, warn:null},
-        {slot:"Afternoon", where:"Raghurajpur → Konark (~35 km)", items:["Drive to Konark, stopping at Raghurajpur Heritage Crafts Village on the way","Check in to Panthanivas Konark"], tip:"Watch the Pattachitra painters at work in Raghurajpur — unhurried, and great for photos.", warn:null},
+        {slot:"Morning", where:"Panthanivas Puri", items:["Breakfast at the hotel","Check out by 9:00 AM"], tip:null, warn:"Same 9:00 AM check-out policy here — ~₹250/hr if you run past the grace period."},
+        {slot:"Afternoon", where:"Raghurajpur → Konark (~35 km)", items:["Drive to Konark, stopping at Raghurajpur Heritage Crafts Village on the way","Check in to Panthanivas Konark (check-in opens 11:00 AM)"], tip:"Watch the Pattachitra painters at work in Raghurajpur — unhurried, and great for photos.", warn:null},
         {slot:"Evening", where:"Panthanivas Konark", items:["Settle in, relaxed evening — no rush tomorrow, you're staying right here"], tip:null, warn:null}
       ]
     },
     { day:"Day 6", short:"D6", date:"Sun 13 Sep", theme:"Konark Sun Temple, unhurried", flight:null,
+      transport:{mode:"none", label:"🏨 No travel today — staying in Konark"},
+      hotelTonight:"Panthanivas Konark",
       route:["Panthanivas Konark","Konark Sun Temple","Chandrabhaga Beach"],
       slots:[
         {slot:"Morning", where:"Konark Sun Temple", items:["Breakfast, then walk over to the Sun Temple — no travel needed, you're staying in Konark"], tip:"The carved stone wheels are the single best photo of the whole trip.", warn:"Some walking on uneven stone — comfortable shoes help."},
@@ -409,23 +446,29 @@
         {slot:"Evening", where:"Panthanivas Konark", items:["Relaxed dinner at the hotel"], tip:null, warn:null}
       ]
     },
-    { day:"Day 7", short:"D7", date:"Mon 14 Sep", theme:"Back to Puri", base:true, flight:null,
-      route:["Panthanivas Konark","Panthanivas Puri"],
+    { day:"Day 7", short:"D7", date:"Mon 14 Sep", theme:"Chilika Lake, then back to Puri", base:true, flight:null,
+      transport:{mode:"cab", label:"🚕 Intercity taxi — Konark → Satapada → Puri, ~3.5 hrs total"},
+      hotelTonight:"Panthanivas Puri (2nd stay)",
+      route:["Panthanivas Konark","Satapada, Chilika Lake","Panthanivas Puri"],
       slots:[
-        {slot:"Morning", where:"Panthanivas Konark", items:["Relaxed breakfast, check out of Panthanivas Konark"], tip:null, warn:null},
-        {slot:"Afternoon", where:"Drive to Puri (~1 hr)", items:["Drive back to Puri","Check in to Panthanivas Puri (second stay, one night)"], tip:null, warn:null},
-        {slot:"Evening", where:"Puri Beach", items:["Relaxed evening on the beach, or revisit the temple market lanes"], tip:null, warn:null}
+        {slot:"Morning", where:"Panthanivas Konark", items:["Breakfast at the hotel","Check out by 9:00 AM","Drive towards Satapada, Chilika Lake"], tip:null, warn:"Same 9:00 AM check-out — ~₹250/hr if you run late. This is a long day out — start early."},
+        {slot:"Afternoon", where:"Satapada → Puri", items:["Irrawaddy dolphin boat safari on Chilika Lake at Satapada","Drive on to Puri","Check in to Panthanivas Puri (second stay, one night, check-in opens 11:00 AM)"], tip:"Dolphin spotting is the highlight of the day — keep the phone charged.", warn:"A full day out with real driving distance — pack light rain gear (monsoon season) and keep it flexible."},
+        {slot:"Evening", where:"Puri Beach", items:["Relaxed evening on the beach — you've earned it after a long day"], tip:null, warn:null}
       ]
     },
     { day:"Day 8", short:"D8", date:"Tue 15 Sep", theme:"Back to Bhubaneswar, via Alarnath &amp; Pipili", base:true, flight:null,
+      transport:{mode:"cab", label:"🚕 Intercity taxi — Puri → Bhubaneswar via Alarnath &amp; Pipili, ~2 hrs"},
+      hotelTonight:"Panthanivas Bhubaneswar (2nd stay)",
       route:["Panthanivas Puri","Alarnath Temple","Pipili craft market","Panthanivas Bhubaneswar"],
       slots:[
-        {slot:"Morning", where:"Panthanivas Puri", items:["Breakfast, check out of Panthanivas Puri"], tip:null, warn:null},
-        {slot:"Afternoon", where:"Alarnath &amp; Pipili → Bhubaneswar (~2 hrs)", items:["Drive to Bhubaneswar, stopping at the quiet Alarnath Temple and Pipili's applique-craft market on the way","Check in to Panthanivas Bhubaneswar (second stay)"], tip:"Pipili's colourful umbrellas and lampshades are a great last craft-market stop.", warn:"Alarnath Temple is small and quiet — easy, unhurried visit."},
+        {slot:"Morning", where:"Panthanivas Puri", items:["Breakfast at the hotel","Check out by 9:00 AM"], tip:null, warn:"Same 9:00 AM check-out policy — ~₹250/hr if you run past the grace period."},
+        {slot:"Afternoon", where:"Alarnath &amp; Pipili → Bhubaneswar (~2 hrs)", items:["Drive to Bhubaneswar, stopping at the quiet Alarnath Temple and Pipili's applique-craft market on the way","Check in to Panthanivas Bhubaneswar (second stay, check-in opens 11:00 AM)"], tip:"Pipili's colourful umbrellas and lampshades are a great last craft-market stop.", warn:"Alarnath Temple is small and quiet — easy, unhurried visit."},
         {slot:"Evening", where:"Ekamra Haat, Bhubaneswar", items:["Browse Ekamra Haat handicrafts market for last-minute souvenirs, relaxed dinner"], tip:null, warn:null}
       ]
     },
     { day:"Day 9", short:"D9", date:"Wed 16 Sep", theme:"Rest day in Bhubaneswar", flight:null,
+      transport:{mode:"none", label:"🏨 No travel today — staying in Bhubaneswar"},
+      hotelTonight:"Panthanivas Bhubaneswar (2nd stay)",
       route:["Panthanivas Bhubaneswar"],
       slots:[
         {slot:"Morning", where:"Bhubaneswar", items:["No excursion today — sleep in, relax at the hotel"], tip:null, warn:null},
@@ -436,49 +479,71 @@
     { day:"Day 10", short:"D10", date:"Thu 17 Sep", theme:"Fly home to Bangalore", base:true, flight:{
         from:"BBI", to:"BLR", airline:"IndiGo 6E-6536", depart:"14:15", arrive:"16:25", pnr:"RGPI2U"
       },
+      transport:{mode:"flight", label:"✈️ Flight — IndiGo 6E-6536, BBI → BLR, 14:15"},
+      hotelTonight:"—  (flying home tonight)",
       route:["Panthanivas Bhubaneswar","Biju Patnaik International Airport Bhubaneswar","Kempegowda International Airport Bengaluru"],
       slots:[
-        {slot:"Morning", where:"Panthanivas Bhubaneswar", items:["Relaxed breakfast","Pack at leisure — no early start needed"], tip:null, warn:null},
-        {slot:"Afternoon", where:"Hotel → BBI → BLR", items:["Check out by 12:00","Short cab to Biju Patnaik International Airport","Flight home (IndiGo 6E-6536)"], tip:null, warn:null},
+        {slot:"Morning", where:"Panthanivas Bhubaneswar", items:["Relaxed breakfast","Pack at leisure"], tip:null, warn:null},
+        {slot:"Afternoon", where:"Hotel → BBI → BLR", items:["Call the hotel ahead to request a ~2-hour late check-out extension (standard is 9:00 AM, extend to ~11:00 AM) — ~₹250/hr fee","Short cab to Biju Patnaik International Airport","Flight home (IndiGo 6E-6536)"], tip:null, warn:"Standard check-out is 9:00 AM but the flight is 14:15 — arrange the late check-out extension in advance, don't leave it to the morning of."},
         {slot:"Evening", where:"Bengaluru", items:["Home — trip complete"], tip:null, warn:null}
       ]
     }
   ];
 
   var TRAVEL_LEGS = [
-    {label:"Flight: Bengaluru → Bhubaneswar", sub:"Akasa Air QP-1503 · 8 Sep · 13:35", status:"ok"},
-    {label:"Flight: Bhubaneswar → Bengaluru", sub:"IndiGo 6E-6536 · 17 Sep · 14:15", status:"ok"},
-    {label:"Cab: Home → BLR airport", sub:"Day 1 morning", status:"pend"},
-    {label:"Cab: BBI airport → hotel", sub:"Day 1 afternoon", status:"pend"},
-    {label:"Intercity taxi: Bhubaneswar → Puri", sub:"Day 3, ~1.5 hrs", status:"pend"},
-    {label:"Intercity taxi: Puri → Konark", sub:"Day 5, via Raghurajpur, ~1 hr", status:"pend"},
-    {label:"Intercity taxi: Konark → Puri", sub:"Day 7, ~1 hr", status:"pend"},
-    {label:"Intercity taxi: Puri → Bhubaneswar", sub:"Day 8, via Alarnath &amp; Pipili, ~2 hrs", status:"pend"},
-    {label:"Cab: Hotel → BBI airport", sub:"Day 10, short ride", status:"pend"}
+    {type:"fixed", label:"Flight: Bengaluru → Bhubaneswar", sub:"Akasa Air QP-1503 · 8 Sep · 13:35"},
+    {type:"fixed", label:"Flight: Bhubaneswar → Bengaluru", sub:"IndiGo 6E-6536 · 17 Sep · 14:15"},
+    {type:"fixed", label:"Hotel: Panthanivas Bhubaneswar", sub:"8–10 Sep · Booking ID 06092026H0094318"},
+    {type:"fixed", label:"Hotel: Panthanivas Puri", sub:"10–12 Sep · Booking ID 06092026H0094319"},
+    {type:"fixed", label:"Hotel: Panthanivas Konark", sub:"12–14 Sep · Booking ID 06092026H0094320"},
+    {type:"fixed", label:"Hotel: Panthanivas Puri", sub:"14–15 Sep · Booking ID 06092026H0094321"},
+    {type:"fixed", label:"Hotel: Panthanivas Bhubaneswar", sub:"15–17 Sep · Booking ID 06092026H0094322"},
+    {type:"check", key:"cab-home-blr", label:"Cab: Home → BLR airport", sub:"Day 1 morning"},
+    {type:"check", key:"cab-bbi-hotel", label:"Cab: BBI airport → hotel", sub:"Day 1 afternoon"},
+    {type:"check", key:"cab-bbi-puri", label:"Intercity taxi: Bhubaneswar → Puri", sub:"Day 3, ~1.5 hrs"},
+    {type:"check", key:"cab-puri-konark", label:"Intercity taxi: Puri → Konark", sub:"Day 5, via Raghurajpur, ~1 hr"},
+    {type:"check", key:"cab-konark-puri", label:"Intercity taxi: Konark → Puri", sub:"Day 7, ~1 hr"},
+    {type:"check", key:"cab-puri-bbi", label:"Intercity taxi: Puri → Bhubaneswar", sub:"Day 8, via Alarnath &amp; Pipili, ~2 hrs"},
+    {type:"check", key:"cab-hotel-bbi", label:"Cab: Hotel → BBI airport", sub:"Day 10, short ride"}
   ];
 
   var STAY_PLAN = [
-    {d:"D1", date:"8 Sep", city:"Bhubaneswar", hotel:"Panthanivas Bhubaneswar", food:"Home-cooked / in-flight"},
-    {d:"D2", date:"9 Sep", city:"Bhubaneswar", hotel:"Panthanivas Bhubaneswar", food:"Wildgrass Restaurant (lunch)"},
-    {d:"D3", date:"10 Sep", city:"Bhubaneswar → Puri", hotel:"Check out Panthanivas Bhubaneswar → check in Panthanivas Puri", food:"Hotel dinner, Puri"},
-    {d:"D4", date:"11 Sep", city:"Puri", hotel:"Panthanivas Puri", food:"Anand Bazar Mahaprasad (lunch)"},
-    {d:"D5", date:"12 Sep", city:"Puri → Konark", hotel:"Check out Panthanivas Puri → check in Panthanivas Konark", food:"Hotel dinner, Konark"},
-    {d:"D6", date:"13 Sep", city:"Konark", hotel:"Panthanivas Konark", food:"Local lunch near Chandrabhaga"},
-    {d:"D7", date:"14 Sep", city:"Konark → Puri", hotel:"Check out Panthanivas Konark → check in Panthanivas Puri", food:"Hotel dinner, Puri"},
-    {d:"D8", date:"15 Sep", city:"Puri → Bhubaneswar", hotel:"Check out Panthanivas Puri → check in Panthanivas Bhubaneswar", food:"Ekamra Haat area"},
-    {d:"D9", date:"16 Sep", city:"Bhubaneswar", hotel:"Panthanivas Bhubaneswar", food:"Rest day — hotel dining"},
-    {d:"D10", date:"17 Sep", city:"Bhubaneswar", hotel:"Check out by 12:00", food:"Breakfast only, fly out"}
+    {d:"D1", date:"8 Sep", city:"Bhubaneswar", hotel:"Panthanivas Bhubaneswar (check-in 11 AM)", food:"Home-cooked breakfast; in-flight meal"},
+    {d:"D2", date:"9 Sep", city:"Bhubaneswar", hotel:"Panthanivas Bhubaneswar", food:"Hotel breakfast; Wildgrass Restaurant (lunch)"},
+    {d:"D3", date:"10 Sep", city:"Bhubaneswar → Puri", hotel:"Check out Bhubaneswar by 9 AM → check in Puri from 11 AM", food:"Hotel breakfast; hotel dinner (Puri)"},
+    {d:"D4", date:"11 Sep", city:"Puri", hotel:"Panthanivas Puri", food:"Hotel breakfast; Anand Bazar Mahaprasad (lunch)"},
+    {d:"D5", date:"12 Sep", city:"Puri → Konark", hotel:"Check out Puri by 9 AM → check in Konark from 11 AM", food:"Hotel breakfast; hotel dinner (Konark)"},
+    {d:"D6", date:"13 Sep", city:"Konark", hotel:"Panthanivas Konark", food:"Hotel breakfast; local lunch near Chandrabhaga"},
+    {d:"D7", date:"14 Sep", city:"Konark → Puri", hotel:"Check out Konark by 9 AM → check in Puri from 11 AM", food:"Hotel breakfast; hotel dinner (Puri)"},
+    {d:"D8", date:"15 Sep", city:"Puri → Bhubaneswar", hotel:"Check out Puri by 9 AM → check in Bhubaneswar from 11 AM", food:"Hotel breakfast; Ekamra Haat area (evening)"},
+    {d:"D9", date:"16 Sep", city:"Bhubaneswar", hotel:"Panthanivas Bhubaneswar", food:"Hotel breakfast; rest day — hotel dining"},
+    {d:"D10", date:"17 Sep", city:"Bhubaneswar", hotel:"Standard check-out 9 AM — request ~2hr extension (flight 14:15)", food:"Hotel breakfast, then fly out"}
   ];
 
-  var CONFIRMED_HOTELS = [
-    {city:"Bhubaneswar", name:"Panthanivas Bhubaneswar", addr:"Lewis Road, Bhubaneswar", stays:"8–10 Sep &amp; 15–17 Sep", ids:"06092026H0094318 · 06092026H0094322"},
-    {city:"Puri", name:"Panthanivas Puri", addr:"Chakratirtha Road, Puri", stays:"10–12 Sep &amp; 14–15 Sep", ids:"06092026H0094319 · 06092026H0094321"},
-    {city:"Konark", name:"Panthanivas Konark", addr:"Konark, Puri district", stays:"12–14 Sep", ids:"06092026H0094320"}
+  var HOTELS = [
+    {city:"Bhubaneswar", name:"Panthanivas Bhubaneswar", addr:"Lewis Road, Bhubaneswar 751014", phone:"9078885516",
+     mapsQuery:"Panthanivas Bhubaneswar, Lewis Road, Bhubaneswar",
+     stays:[
+       {dates:"8–10 Sep", id:"06092026H0094318", pdf:"https://drive.google.com/file/d/1Po3IgeKcg__rI63QKAkox9jbpecKHHCr/view"},
+       {dates:"15–17 Sep", id:"06092026H0094322", pdf:"https://drive.google.com/file/d/1zvrsNkQKGMCmd47zudbvlki9SGGa_X1n/view"}
+     ]},
+    {city:"Puri", name:"Panthanivas Puri", addr:"Chakratirtha Road, Puri 752001", phone:"9078885530",
+     mapsQuery:"Panthanivas Puri, Chakratirtha Road, Puri",
+     stays:[
+       {dates:"10–12 Sep", id:"06092026H0094319", pdf:"https://drive.google.com/file/d/1_cGFjLpeYcwvmXF-9MpRy2kkQbhLQO4M/view"},
+       {dates:"14–15 Sep", id:"06092026H0094321", pdf:"https://drive.google.com/file/d/1sS15cpdHwV9TTZQE5i4gvbOgoJb7l42e/view"}
+     ]},
+    {city:"Konark", name:"Panthanivas Konark", addr:"Konark, Puri district 752111", phone:"9078885526",
+     mapsQuery:"Panthanivas Konark, Konark, Puri district",
+     stays:[
+       {dates:"12–14 Sep", id:"06092026H0094320", pdf:"https://drive.google.com/file/d/1J6dqtIsi9u51fcftXJp0pTc8j-bfgiBX/view"}
+     ]}
   ];
 
   var SLOT_GLYPH = {Morning:"☀️", Afternoon:"⛱️", Evening:"🌙"};
   var current = 0;
   var viewMode = "day";
+  var mapExpanded = null;
   var doneMap = {};
   try{ doneMap = JSON.parse(localStorage.getItem("puriYatraDone") || "{}"); }catch(e){ doneMap = {}; }
   function saveDone(){ try{ localStorage.setItem("puriYatraDone", JSON.stringify(doneMap)); }catch(e){} }
@@ -544,11 +609,16 @@
       var d = TRIP[i];
       var pct = (p.y/svgH*100).toFixed(2);
       var xpct = (p.x/svgW*100).toFixed(2);
-      return '<div class="map-node'+(d.base?" base":"")+'" style="left:'+xpct+'%; top:'+pct+'%;" data-jump="'+i+'">'
-        + '<div class="dot">'+d.short+'</div>'
+      var dp = d.date.split(" ");
+      var isActive = mapExpanded === i;
+      return '<div class="map-node'+(d.base?" base":"")+(isActive?" expanded":"")+'" style="left:'+xpct+'%; top:'+pct+'%;" data-jump="'+i+'">'
+        + '<div class="dot"><span class="dnum">'+dp[1]+'</span><span class="dmon">'+dp[2].toUpperCase()+'</span></div>'
         + '<div class="lbl">'+d.theme.split(",")[0].split(" — ")[0].split(" via")[0]+'</div>'
-        + '<div class="sub">'+d.date+'</div></div>';
+        + '<div class="sub">'+d.short+'</div></div>';
     }).join("");
+    var detailHtml = mapExpanded !== null
+      ? renderMapDetail(mapExpanded)
+      : '<div class="map-hint">👆 Tap any day above — see what to do, how you get there, and where you sleep that night.</div>';
     return '<div class="map-wrap" style="min-height:'+svgH+'px;">'
       + '<div class="map-title"><div class="eyebrow">The full yatra</div><h1>Ten days, two cities</h1></div>'
       + '<svg class="map-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M12 7l2.2 4.8L19 14l-4.8 2.2L12 21l-2.2-4.8L5 14l4.8-2.2z" fill="currentColor" opacity=".3"/></svg>'
@@ -556,23 +626,56 @@
       + '<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="1 10" stroke-linecap="round" opacity="0.85"/>'
       + '</svg>'
       + '<div style="position:relative; height:'+svgH+'px;">'+nodesHtml+'</div>'
+      + '<div class="map-detail-wrap">'+detailHtml+'</div>'
+      + '</div>';
+  }
+
+  function renderMapDetail(i){
+    var d = TRIP[i];
+    var itemsHtml = "";
+    d.slots.forEach(function(s){
+      itemsHtml += '<li><b>'+s.slot+':</b> '+s.items.join("; ")+'</li>';
+    });
+    return '<div class="map-detail">'
+      + '<div class="eyebrow">'+d.day+' &middot; '+d.date+'</div>'
+      + '<h3>'+d.theme+'</h3>'
+      + '<div class="md-chip">'+d.transport.label+'</div>'
+      + '<div class="md-chip hotel">🛏️ Staying tonight: '+d.hotelTonight+'</div>'
+      + '<ul class="md-list">'+itemsHtml+'</ul>'
+      + '<button class="md-open" data-open="'+i+'">Open full day &rarr;</button>'
       + '</div>';
   }
 
   function renderTravelView(){
-    var rows = TRAVEL_LEGS.map(function(t){
+    var rows = TRAVEL_LEGS.map(function(t, i){
+      if (t.type === "fixed"){
+        return '<div class="travel-row"><div><div class="tr-label">'+t.label+'</div><div class="tr-sub">'+t.sub+'</div></div>'
+          + '<span class="status-pill ok">Booked</span></div>';
+      }
+      var isDone = !!doneMap[t.key];
       return '<div class="travel-row"><div><div class="tr-label">'+t.label+'</div><div class="tr-sub">'+t.sub+'</div></div>'
-        + '<span class="status-pill '+(t.status==="ok"?"ok":"pend")+'">'+(t.status==="ok"?"Booked":"Pending")+'</span></div>';
+        + '<button class="status-pill toggle '+(isDone?"ok":"pend")+'" data-key="'+t.key+'">'+(isDone?"✓ Booked":"Pending")+'</button></div>';
     }).join("");
     return '<div class="day-head"><div class="eyebrow">Logistics</div><h1>Travel &amp; tickets</h1></div>'
-      + '<div class="info-card"><h4>✈️ Flights &amp; ground transport</h4>' + rows + '</div>'
-      + '<div class="info-card"><h4>📋 A note</h4><p>Green means confirmed and booked. Amber means it still needs arranging — mostly local cabs and intercity taxis, which are easiest to book a few days ahead once dates are locked.</p></div>';
+      + '<div class="info-card"><h4>✈️ Flights, hotels &amp; ground transport</h4>' + rows + '</div>'
+      + '<div class="info-card"><h4>📋 A note</h4><p>Flights and hotels are confirmed and booked. Tap a cab/taxi row to mark it booked once you\'ve arranged it — these are the ones still worth locking in a few days ahead.</p></div>';
   }
 
   function renderStayView(){
-    var hotelsHtml = CONFIRMED_HOTELS.map(function(h){
-      return '<div class="travel-row"><div><div class="tr-label">🏨 '+h.name+'</div><div class="tr-sub">'+h.addr+' — '+h.stays+' · Booking ID '+h.ids+'</div></div>'
-        + '<span class="status-pill ok">Booked</span></div>';
+    var hotelsHtml = HOTELS.map(function(h){
+      var mapsHref = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(h.mapsQuery);
+      var stayRows = h.stays.map(function(s){
+        return '<div class="hotel-stay"><span>'+s.dates+' &middot; ID '+s.id+'</span>'
+          + '<a href="'+s.pdf+'" target="_blank" rel="noopener" class="pdf-link">📄 View PDF</a></div>';
+      }).join("");
+      return '<div class="hotel-card">'
+        + '<div class="hotel-card-head"><div><div class="tr-label">🏨 '+h.name+'</div><div class="tr-sub">'+h.addr+'</div></div><span class="status-pill ok">Booked</span></div>'
+        + '<div class="hotel-actions">'
+        +   '<a class="hotel-btn" href="tel:+91'+h.phone+'">📞 Call &middot; '+h.phone+'</a>'
+        +   '<a class="hotel-btn" href="'+mapsHref+'" target="_blank" rel="noopener">🗺️ Map</a>'
+        + '</div>'
+        + stayRows
+        + '</div>';
     }).join("");
     var rowsHtml = STAY_PLAN.map(function(s, i){
       var key = "stay-"+i;
@@ -587,11 +690,12 @@
         + '</div></div>';
     }).join("");
     return '<div class="day-head"><div class="eyebrow">Where you stay</div><h1>Hotels &amp; food</h1></div>'
-      + '<div class="info-card"><h4>Confirmed hotels (all Panthanivas / OTDC)</h4>' + hotelsHtml + '</div>'
+      + '<div class="info-card"><h4>ℹ️ Check-in / check-out policy</h4><p>Every Panthanivas stay: <b>check-in from 11:00 AM</b>, <b>check-out by 9:00 AM</b>. Late check-out costs ~₹250/hr after a 1-hour grace period. Day 10 is the one exception — see the Travel &amp; Tickets note.</p></div>'
+      + hotelsHtml
       + '<div class="stay-table">' + rowsHtml + '</div>';
   }
 
-  function render(){
+  function render(keepScroll){
     renderDayStrip();
     var html;
     if (viewMode === "day") html = renderDayView();
@@ -623,18 +727,39 @@
         });
       });
     }
-    if (viewMode === "journeyMap"){
-      document.querySelectorAll(".map-node").forEach(function(el){
-        el.addEventListener("click", function(){
-          current = parseInt(el.getAttribute("data-jump"), 10);
-          viewMode = "day";
-          setActiveMenu();
-          render();
-          window.scrollTo(0,0);
+    if (viewMode === "travel"){
+      document.querySelectorAll(".status-pill.toggle").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var key = btn.getAttribute("data-key");
+          doneMap[key] = !doneMap[key];
+          var isDone = !!doneMap[key];
+          btn.classList.toggle("ok", isDone);
+          btn.classList.toggle("pend", !isDone);
+          btn.textContent = isDone ? "✓ Booked" : "Pending";
+          saveDone();
         });
       });
     }
-    window.scrollTo(0,0);
+    if (viewMode === "journeyMap"){
+      document.querySelectorAll(".map-node").forEach(function(el){
+        el.addEventListener("click", function(){
+          var idx = parseInt(el.getAttribute("data-jump"), 10);
+          mapExpanded = (mapExpanded === idx) ? null : idx;
+          render(true);
+        });
+      });
+      var openBtn = document.querySelector(".md-open");
+      if (openBtn){
+        openBtn.addEventListener("click", function(){
+          current = parseInt(openBtn.getAttribute("data-open"), 10);
+          viewMode = "day";
+          mapExpanded = null;
+          setActiveMenu();
+          render();
+        });
+      }
+    }
+    if (!keepScroll) window.scrollTo(0,0);
   }
 
   function setActiveMenu(){
