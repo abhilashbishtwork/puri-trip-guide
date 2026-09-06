@@ -576,6 +576,17 @@
   try{ doneMap = JSON.parse(localStorage.getItem("puriYatraDone") || "{}"); }catch(e){ doneMap = {}; }
   function saveDone(){ try{ localStorage.setItem("puriYatraDone", JSON.stringify(doneMap)); }catch(e){} }
 
+  // Escapes untrusted text (e.g. shared Budget-sheet entries from any user) before
+  // it's interpolated into an innerHTML template, to prevent stored/reflected XSS.
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   /* ---------------- real-time slot engine ---------------- */
   // Uses the device's own clock (assumed IST, since this runs on a phone in India).
   function slotWindow(iso, slot){
@@ -829,7 +840,7 @@
       return html;
     }
     if (budgetError && budgetRows === null){
-      html += '<div class="callout warn"><span class="ic">&#9888;</span><span>Could not load expenses: '+budgetError+'</span></div>';
+      html += '<div class="callout warn"><span class="ic">&#9888;</span><span>Could not load expenses: '+esc(budgetError)+'</span></div>';
     }
 
     var rows = budgetRows || [];
@@ -847,9 +858,9 @@
     html += '<div class="info-card"><h4>💰 Total spent so far</h4><p class="budget-grand">₹'+grand.toLocaleString('en-IN')+'</p></div>';
 
     byDate.forEach(function(grp){
-      html += '<div class="budget-day"><div class="budget-day-head"><span>'+grp.date+'</span><span>₹'+grp.total.toLocaleString('en-IN')+'</span></div>';
+      html += '<div class="budget-day"><div class="budget-day-head"><span>'+esc(grp.date)+'</span><span>₹'+grp.total.toLocaleString('en-IN')+'</span></div>';
       grp.items.forEach(function(it){
-        html += '<div class="budget-row"><div><div class="tr-label">'+it.expense+'</div><div class="tr-sub">'+(it.details||"")+'</div></div><div class="budget-amt">₹'+it.amount.toLocaleString('en-IN')+'</div></div>';
+        html += '<div class="budget-row"><div><div class="tr-label">'+esc(it.expense)+'</div><div class="tr-sub">'+esc(it.details||"")+'</div></div><div class="budget-amt">₹'+it.amount.toLocaleString('en-IN')+'</div></div>';
       });
       html += '</div>';
     });
