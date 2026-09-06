@@ -178,6 +178,11 @@
   .menu-backdrop{position:fixed; inset:0; z-index:22; display:none;}
   .menu-backdrop.open{display:block;}
 
+  .progress-strip{display:flex; gap:4px; padding:10px 0 0;}
+  .progress-seg{flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,0.18); overflow:hidden; cursor:pointer;}
+  .progress-seg .fill{height:100%; border-radius:3px; background:var(--accent); transition:width .25s ease;}
+  .progress-seg.complete .fill{background:var(--good);}
+
   .day-strip{display:flex; gap:8px; overflow-x:auto; padding:2px 0 14px; scrollbar-width:none;}
   .day-strip::-webkit-scrollbar{display:none;}
   .day-tab{
@@ -217,9 +222,11 @@
   .slot[data-slot="Morning"] .glyph{background:var(--accent-soft); color:var(--accent-ink);}
   .slot[data-slot="Afternoon"] .glyph{background:var(--sea-soft); color:var(--sea);}
   .slot[data-slot="Evening"] .glyph{background:var(--surface-2); color:var(--ink-soft);}
-  .slot-head h2{font-size:17px; margin:0;}
+  .slot-head h2{font-size:17px; margin:0; display:flex; align-items:center; gap:8px;}
   .slot-head .where{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
   .slot-body{padding:0 18px 16px;}
+  .slot-now{font-size:10.5px; font-weight:700; color:var(--good); background:var(--good-soft); padding:2px 8px; border-radius:100px; text-transform:uppercase; letter-spacing:.03em;}
+  .slot-lock{font-size:10.5px; font-weight:700; color:var(--ink-faint); background:var(--surface-2); padding:2px 8px; border-radius:100px; text-transform:uppercase; letter-spacing:.03em;}
 
   .todo{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
   .todo li{display:flex; align-items:flex-start; gap:11px; padding:9px 4px; border-radius:10px; cursor:pointer;}
@@ -228,6 +235,9 @@
   .todo li.done .box{background:var(--good); border-color:var(--good); color:#fff;}
   .todo li.done span.txt{color:var(--ink-faint); text-decoration:line-through; text-decoration-color:var(--line-strong);}
   .todo span.txt{font-size:15.5px; padding-top:1px;}
+  .todo li.locked, .stay-row.locked{cursor:default; opacity:.55;}
+  .todo li.locked:hover, .stay-row.locked:hover{background:none;}
+  .todo li.locked .box, .stay-row.locked .box{border-style:dashed;}
 
   .callout{margin-top:12px; padding:11px 13px; border-radius:12px; font-size:14px; display:flex; gap:9px; align-items:flex-start;}
   .callout.tip{background:var(--accent-soft); color:var(--accent-ink);}
@@ -365,6 +375,7 @@
         </div>
       </div>
     </div>
+    <div class="progress-strip" id="progressStrip"></div>
     <div class="day-strip" id="dayStrip"></div>
   </header>
   <audio id="bgMusic" src="audio/saffron-and-stone.mp3" loop preload="auto"></audio>
@@ -384,7 +395,7 @@
   "use strict";
 
   var TRIP = [
-    { day:"Day 1", short:"D1", date:"Tue 8 Sep", theme:"Fly in from Bangalore", base:true, flight:{
+    { day:"Day 1", short:"D1", date:"Tue 8 Sep", iso:"2026-09-08", theme:"Fly in from Bangalore", base:true, flight:{
         from:"BLR", to:"BBI", airline:"Akasa Air QP-1503", depart:"13:35", arrive:"15:45", pnr:"IBUS2K"
       },
       transport:{mode:"flight", label:"✈️ Flight — Akasa QP-1503, BLR → BBI, 13:35"},
@@ -396,7 +407,7 @@
         {slot:"Evening", where:"Bhubaneswar", items:["Settle in, no plans tonight","Optional: short walk at Ekamra Kanan Botanical Garden"], tip:null, warn:"Keep tonight light — it's been a travel day."}
       ]
     },
-    { day:"Day 2", short:"D2", date:"Wed 9 Sep", theme:"Full day in Bhubaneswar — no rush", flight:null,
+    { day:"Day 2", short:"D2", date:"Wed 9 Sep", iso:"2026-09-09", theme:"Full day in Bhubaneswar — no rush", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Bhubaneswar"},
       hotelTonight:"Panthanivas Bhubaneswar",
       route:["Panthanivas Bhubaneswar","Rajarani Temple","Mukteshwar Temple","Wildgrass Restaurant","Lingaraj Temple","Dhauli Peace Pagoda"],
@@ -406,7 +417,7 @@
         {slot:"Evening", where:"Panthanivas Bhubaneswar", items:["Relaxed dinner","Early night — check-out is 9:00 AM tomorrow"], tip:null, warn:null}
       ]
     },
-    { day:"Day 3", short:"D3", date:"Thu 10 Sep", theme:"On to Puri", base:true, flight:null,
+    { day:"Day 3", short:"D3", date:"Thu 10 Sep", iso:"2026-09-10", theme:"On to Puri", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Bhubaneswar → Puri, ~1.5 hrs"},
       hotelTonight:"Panthanivas Puri",
       route:["Panthanivas Bhubaneswar","Panthanivas Puri, Chakratirtha Road"],
@@ -416,7 +427,7 @@
         {slot:"Evening", where:"Puri Beach (Golden Beach)", items:["Sunset walk on Puri Beach"], tip:"The best sunset of the whole trip — have the camera ready.", warn:null}
       ]
     },
-    { day:"Day 4", short:"D4", date:"Fri 11 Sep", theme:"Jagannath Temple darshan", flight:null,
+    { day:"Day 4", short:"D4", date:"Fri 11 Sep", iso:"2026-09-11", theme:"Jagannath Temple darshan", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Puri"},
       hotelTonight:"Panthanivas Puri",
       route:["Panthanivas Puri","Jagannath Temple, Puri"],
@@ -426,7 +437,7 @@
         {slot:"Evening", where:"Puri Beach", items:["Relaxed evening on the beach"], tip:null, warn:null}
       ]
     },
-    { day:"Day 5", short:"D5", date:"Sat 12 Sep", theme:"On to Konark, via Raghurajpur", base:true, flight:null,
+    { day:"Day 5", short:"D5", date:"Sat 12 Sep", iso:"2026-09-12", theme:"On to Konark, via Raghurajpur", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Puri → Konark via Raghurajpur, ~1 hr"},
       hotelTonight:"Panthanivas Konark",
       route:["Panthanivas Puri","Raghurajpur Heritage Village","Panthanivas Konark"],
@@ -436,7 +447,7 @@
         {slot:"Evening", where:"Panthanivas Konark", items:["Settle in, relaxed evening — no rush tomorrow, you're staying right here"], tip:null, warn:null}
       ]
     },
-    { day:"Day 6", short:"D6", date:"Sun 13 Sep", theme:"Konark Sun Temple, unhurried", flight:null,
+    { day:"Day 6", short:"D6", date:"Sun 13 Sep", iso:"2026-09-13", theme:"Konark Sun Temple, unhurried", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Konark"},
       hotelTonight:"Panthanivas Konark",
       route:["Panthanivas Konark","Konark Sun Temple","Chandrabhaga Beach"],
@@ -446,7 +457,7 @@
         {slot:"Evening", where:"Panthanivas Konark", items:["Relaxed dinner at the hotel"], tip:null, warn:null}
       ]
     },
-    { day:"Day 7", short:"D7", date:"Mon 14 Sep", theme:"Chilika Lake, then back to Puri", base:true, flight:null,
+    { day:"Day 7", short:"D7", date:"Mon 14 Sep", iso:"2026-09-14", theme:"Chilika Lake, then back to Puri", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Konark → Satapada → Puri, ~3.5 hrs total"},
       hotelTonight:"Panthanivas Puri (2nd stay)",
       route:["Panthanivas Konark","Satapada, Chilika Lake","Panthanivas Puri"],
@@ -456,7 +467,7 @@
         {slot:"Evening", where:"Puri Beach", items:["Relaxed evening on the beach — you've earned it after a long day"], tip:null, warn:null}
       ]
     },
-    { day:"Day 8", short:"D8", date:"Tue 15 Sep", theme:"Back to Bhubaneswar, via Alarnath &amp; Pipili", base:true, flight:null,
+    { day:"Day 8", short:"D8", date:"Tue 15 Sep", iso:"2026-09-15", theme:"Back to Bhubaneswar, via Alarnath &amp; Pipili", base:true, flight:null,
       transport:{mode:"cab", label:"🚕 Intercity taxi — Puri → Bhubaneswar via Alarnath &amp; Pipili, ~2 hrs"},
       hotelTonight:"Panthanivas Bhubaneswar (2nd stay)",
       route:["Panthanivas Puri","Alarnath Temple","Pipili craft market","Panthanivas Bhubaneswar"],
@@ -466,7 +477,7 @@
         {slot:"Evening", where:"Ekamra Haat, Bhubaneswar", items:["Browse Ekamra Haat handicrafts market for last-minute souvenirs, relaxed dinner"], tip:null, warn:null}
       ]
     },
-    { day:"Day 9", short:"D9", date:"Wed 16 Sep", theme:"Rest day in Bhubaneswar", flight:null,
+    { day:"Day 9", short:"D9", date:"Wed 16 Sep", iso:"2026-09-16", theme:"Rest day in Bhubaneswar", flight:null,
       transport:{mode:"none", label:"🏨 No travel today — staying in Bhubaneswar"},
       hotelTonight:"Panthanivas Bhubaneswar (2nd stay)",
       route:["Panthanivas Bhubaneswar"],
@@ -476,7 +487,7 @@
         {slot:"Evening", where:"Panthanivas Bhubaneswar", items:["Relaxed dinner, pack at leisure"], tip:null, warn:null}
       ]
     },
-    { day:"Day 10", short:"D10", date:"Thu 17 Sep", theme:"Fly home to Bangalore", base:true, flight:{
+    { day:"Day 10", short:"D10", date:"Thu 17 Sep", iso:"2026-09-17", theme:"Fly home to Bangalore", base:true, flight:{
         from:"BBI", to:"BLR", airline:"IndiGo 6E-6536", depart:"14:15", arrive:"16:25", pnr:"RGPI2U"
       },
       transport:{mode:"flight", label:"✈️ Flight — IndiGo 6E-6536, BBI → BLR, 14:15"},
@@ -548,11 +559,72 @@
   try{ doneMap = JSON.parse(localStorage.getItem("puriYatraDone") || "{}"); }catch(e){ doneMap = {}; }
   function saveDone(){ try{ localStorage.setItem("puriYatraDone", JSON.stringify(doneMap)); }catch(e){} }
 
+  /* ---------------- real-time slot engine ---------------- */
+  // Uses the device's own clock (assumed IST, since this runs on a phone in India).
+  function slotWindow(iso, slot){
+    var y = +iso.slice(0,4), m = +iso.slice(5,7)-1, dd = +iso.slice(8,10);
+    var start = new Date(y, m, dd, 0,0,0,0);
+    var end = new Date(y, m, dd, 0,0,0,0);
+    if (slot === "Morning"){ end.setHours(12,0,0,0); }
+    else if (slot === "Afternoon"){ start.setHours(12,0,0,0); end.setHours(17,0,0,0); }
+    else { start.setHours(17,0,0,0); end.setHours(23,59,59,999); }
+    return {start:start, end:end};
+  }
+  function slotState(iso, slot){
+    var now = new Date();
+    var w = slotWindow(iso, slot);
+    if (now < w.start) return "future";
+    if (now > w.end) return "past";
+    return "present";
+  }
+  // done-state for a checklist item, respecting the real-time rule:
+  // past -> auto-done unless explicitly un-ticked; present -> normal manual toggle; future -> never done, locked.
+  function itemState(key, iso, slot){
+    var st = slotState(iso, slot);
+    if (st === "future") return {state:st, done:false, locked:true};
+    if (st === "past") return {state:st, done: doneMap[key] !== false, locked:false};
+    return {state:st, done: doneMap[key] === true, locked:false};
+  }
+  function dayState(iso){
+    var now = new Date();
+    var start = slotWindow(iso, "Morning").start;
+    var end = slotWindow(iso, "Evening").end;
+    if (now < start) return "future";
+    if (now > end) return "past";
+    return "present";
+  }
+  function dayProgress(i){
+    var d = TRIP[i], total = 0, done = 0;
+    d.slots.forEach(function(s, si){
+      s.items.forEach(function(item, ii){
+        total++;
+        var key = i+"-"+si+"-"+ii;
+        if (itemState(key, d.iso, s.slot).done) done++;
+      });
+    });
+    return {done:done, total:total};
+  }
+
   function mapsUrl(stops){
     return "https://www.google.com/maps/dir/" + stops.filter(Boolean).map(encodeURIComponent).join("/");
   }
 
   /* ---------------- rendering: day strip + view menu state ---------------- */
+  function renderProgressStrip(){
+    var wrap = document.getElementById("progressStrip");
+    wrap.innerHTML = "";
+    TRIP.forEach(function(d, i){
+      var p = dayProgress(i);
+      var pct = p.total ? Math.round(p.done/p.total*100) : 0;
+      var seg = document.createElement("div");
+      seg.className = "progress-seg" + (pct >= 100 ? " complete" : "");
+      seg.title = d.day + ": " + p.done + "/" + p.total + " done";
+      seg.innerHTML = '<div class="fill" style="width:'+pct+'%"></div>';
+      seg.addEventListener("click", function(){ current = i; viewMode = "day"; setActiveMenu(); render(); });
+      wrap.appendChild(seg);
+    });
+  }
+
   function renderDayStrip(){
     var strip = document.getElementById("dayStrip");
     strip.style.display = viewMode === "day" ? "flex" : "none";
@@ -581,11 +653,14 @@
         + '<div class="pass-field"><div class="lbl">Arrive</div><div class="val mono">'+f.arrive+'</div></div></div></div>';
     }
     d.slots.forEach(function(s, si){
-      html += '<section class="slot" data-slot="'+s.slot+'"><div class="slot-head"><div class="glyph">'+SLOT_GLYPH[s.slot]+'</div><div><h2>'+s.slot+'</h2><div class="where">'+s.where+'</div></div></div><div class="slot-body"><ul class="todo">'
+      var slotSt = slotState(d.iso, s.slot);
+      var slotBadge = slotSt === "present" ? '<span class="slot-now">● now</span>' : slotSt === "future" ? '<span class="slot-lock">🔒 upcoming</span>' : '';
+      html += '<section class="slot" data-slot="'+s.slot+'"><div class="slot-head"><div class="glyph">'+SLOT_GLYPH[s.slot]+'</div><div><h2>'+s.slot+' '+slotBadge+'</h2><div class="where">'+s.where+'</div></div></div><div class="slot-body"><ul class="todo">'
         + s.items.map(function(item, ii){
             var key = current+"-"+si+"-"+ii;
-            var isDone = !!doneMap[key];
-            return '<li class="'+(isDone?"done":"")+'" data-key="'+key+'"><span class="box">&#10003;</span><span class="txt">'+item+'</span></li>';
+            var st = itemState(key, d.iso, s.slot);
+            var cls = (st.done ? "done" : "") + (st.locked ? " locked" : "");
+            return '<li class="'+cls+'" data-key="'+key+'" data-iso="'+d.iso+'" data-slot="'+s.slot+'" data-locked="'+st.locked+'"><span class="box">&#10003;</span><span class="txt">'+item+'</span></li>';
           }).join("") + '</ul>';
       if (s.tip){ html += '<div class="callout tip"><span class="ic">&#9733;</span><span>'+s.tip+'</span></div>'; }
       if (s.warn){ html += '<div class="callout warn"><span class="ic">&#9888;</span><span>'+s.warn+'</span></div>'; }
@@ -622,7 +697,7 @@
     return '<div class="map-wrap" style="min-height:'+svgH+'px;">'
       + '<div class="map-title"><div class="eyebrow">The full yatra</div><h1>Ten days, two cities</h1></div>'
       + '<svg class="map-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M12 7l2.2 4.8L19 14l-4.8 2.2L12 21l-2.2-4.8L5 14l4.8-2.2z" fill="currentColor" opacity=".3"/></svg>'
-      + '<svg class="map-svg" viewBox="0 0 '+svgW+' '+svgH+'" style="position:absolute; top:64px; left:0; height:calc(100% - 90px);" preserveAspectRatio="none">'
+      + '<svg class="map-svg" viewBox="0 0 '+svgW+' '+svgH+'" style="position:absolute; top:64px; left:0; height:'+svgH+'px;" preserveAspectRatio="none">'
       + '<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="1 10" stroke-linecap="round" opacity="0.85"/>'
       + '</svg>'
       + '<div style="position:relative; height:'+svgH+'px;">'+nodesHtml+'</div>'
@@ -657,8 +732,7 @@
         + '<button class="status-pill toggle '+(isDone?"ok":"pend")+'" data-key="'+t.key+'">'+(isDone?"✓ Booked":"Pending")+'</button></div>';
     }).join("");
     return '<div class="day-head"><div class="eyebrow">Logistics</div><h1>Travel &amp; tickets</h1></div>'
-      + '<div class="info-card"><h4>✈️ Flights, hotels &amp; ground transport</h4>' + rows + '</div>'
-      + '<div class="info-card"><h4>📋 A note</h4><p>Flights and hotels are confirmed and booked. Tap a cab/taxi row to mark it booked once you\'ve arranged it — these are the ones still worth locking in a few days ahead.</p></div>';
+      + '<div class="info-card"><h4>✈️ Flights, hotels &amp; ground transport</h4>' + rows + '</div>';
   }
 
   function renderStayView(){
@@ -679,8 +753,11 @@
     }).join("");
     var rowsHtml = STAY_PLAN.map(function(s, i){
       var key = "stay-"+i;
-      var isDone = !!doneMap[key];
-      return '<div class="stay-row'+(isDone?" done":"")+'" data-key="'+key+'">'
+      var iso = TRIP[i].iso;
+      var st = dayState(iso);
+      var locked = st === "future";
+      var isDone = locked ? false : (st === "past" ? doneMap[key] !== false : doneMap[key] === true);
+      return '<div class="stay-row'+(isDone?" done":"")+(locked?" locked":"")+'" data-key="'+key+'" data-iso="'+iso+'" data-locked="'+locked+'">'
         + '<span class="box">&#10003;</span>'
         + '<div class="sr-day">'+s.d+'</div>'
         + '<div class="sr-body">'
@@ -690,12 +767,12 @@
         + '</div></div>';
     }).join("");
     return '<div class="day-head"><div class="eyebrow">Where you stay</div><h1>Hotels &amp; food</h1></div>'
-      + '<div class="info-card"><h4>ℹ️ Check-in / check-out policy</h4><p>Every Panthanivas stay: <b>check-in from 11:00 AM</b>, <b>check-out by 9:00 AM</b>. Late check-out costs ~₹250/hr after a 1-hour grace period. Day 10 is the one exception — see the Travel &amp; Tickets note.</p></div>'
       + hotelsHtml
       + '<div class="stay-table">' + rowsHtml + '</div>';
   }
 
   function render(keepScroll){
+    renderProgressStrip();
     renderDayStrip();
     var html;
     if (viewMode === "day") html = renderDayView();
@@ -707,9 +784,13 @@
     if (viewMode === "day"){
       document.querySelectorAll(".todo li").forEach(function(li){
         li.addEventListener("click", function(){
+          if (li.getAttribute("data-locked") === "true") return; // future slot - not yet happened
           var key = li.getAttribute("data-key");
-          doneMap[key] = !doneMap[key];
-          li.classList.toggle("done", !!doneMap[key]);
+          var iso = li.getAttribute("data-iso");
+          var slot = li.getAttribute("data-slot");
+          var wasDone = itemState(key, iso, slot).done;
+          doneMap[key] = !wasDone;
+          li.classList.toggle("done", !wasDone);
           saveDone();
         });
       });
@@ -720,9 +801,13 @@
     if (viewMode === "stay"){
       document.querySelectorAll(".stay-row").forEach(function(row){
         row.addEventListener("click", function(){
+          if (row.getAttribute("data-locked") === "true") return; // this day hasn't arrived yet
           var key = row.getAttribute("data-key");
-          doneMap[key] = !doneMap[key];
-          row.classList.toggle("done", !!doneMap[key]);
+          var iso = row.getAttribute("data-iso");
+          var st = dayState(iso);
+          var wasDone = st === "past" ? doneMap[key] !== false : doneMap[key] === true;
+          doneMap[key] = !wasDone;
+          row.classList.toggle("done", !wasDone);
           saveDone();
         });
       });
@@ -788,6 +873,9 @@
 
   setActiveMenu();
   render();
+
+  // keep the real-time lock/unlock state fresh if the app is left open across a slot boundary
+  setInterval(function(){ render(true); }, 60000);
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function(){ navigator.serviceWorker.register("service-worker.js").catch(function(){}); });
