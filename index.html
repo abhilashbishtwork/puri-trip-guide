@@ -333,7 +333,9 @@
   .budget-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 16px; border-top:1px solid var(--line);}
   .budget-amt{font-weight:600; font-variant-numeric:tabular-nums; flex:none;}
   .budget-form{display:flex; flex-direction:column; gap:9px; margin-top:8px;}
-  .budget-form input{padding:10px 12px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg); color:var(--ink); font-size:14.5px; font-family:inherit;}
+  .budget-form input, .budget-form select{padding:10px 12px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg); color:var(--ink); font-size:14.5px; font-family:inherit;}
+  .budget-form select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23888'><path d='M5 7l5 5 5-5H5z'/></svg>"); background-repeat:no-repeat; background-position:right 12px center; background-size:16px;}
+  .budget-form select:invalid{color:var(--ink-soft);}
   .budget-submit{padding:11px; border-radius:11px; border:none; background:var(--accent); color:var(--accent-ink); font-weight:700; font-size:14.5px; cursor:pointer;}
   .bf-status{font-size:12.5px; color:var(--ink-soft); min-height:16px;}
 
@@ -869,11 +871,16 @@
       html += '<div class="map-hint">No expenses logged yet — add the first one below.</div>';
     }
 
+    var dateOptions = TRIP.map(function(t){ var parts = t.date.split(" "); return parts.slice(1).join(" "); })
+      .map(function(d){ return '<option value="'+esc(d)+'">'+esc(d)+'</option>'; }).join("");
+    var expenseOptions = ["Food","Cab","Shopping","Temple","Others"]
+      .map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join("");
+
     html += '<div class="info-card"><h4>➕ Add an expense</h4>'
       + '<form id="budgetForm" class="budget-form">'
-      +   '<input type="text" id="bf-date" placeholder="Date (e.g. 10 Sep)" required>'
-      +   '<input type="text" id="bf-expense" placeholder="Expense (e.g. Flight, Cab, Food)" required>'
-      +   '<input type="text" id="bf-details" placeholder="Details (e.g. BLR to BBI)">'
+      +   '<select id="bf-date" required><option value="" disabled selected>Date</option>'+dateOptions+'</select>'
+      +   '<select id="bf-expense" required><option value="" disabled selected>Expense</option>'+expenseOptions+'</select>'
+      +   '<input type="text" id="bf-details" placeholder="Details">'
       +   '<input type="number" id="bf-amount" placeholder="Amount (₹)" required>'
       +   '<button type="submit" class="budget-submit">Save — updates for everyone</button>'
       +   '<div id="bf-status" class="bf-status"></div>'
