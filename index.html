@@ -186,10 +186,10 @@
   .day-strip{display:flex; gap:8px; overflow-x:auto; padding:2px 0 14px; scrollbar-width:none;}
   .day-strip::-webkit-scrollbar{display:none;}
   .day-tab{
-    flex:none; min-width:74px; text-align:center; cursor:pointer; padding:8px 10px 9px; border-radius:12px 12px 0 0;
+    flex:none; min-width:84px; text-align:center; cursor:pointer; padding:8px 12px 9px; border-radius:12px 12px 0 0;
     background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); border-bottom:none; color:rgba(255,255,255,0.82);
   }
-  .day-tab .dn{font-family:"Fraunces",serif; font-weight:600; font-size:15px;}
+  .day-tab .dn{font-family:"Fraunces",serif; font-weight:600; font-size:13.5px; white-space:nowrap;}
   .day-tab .dd{font-size:10.5px; opacity:0.85; margin-top:1px;}
   .day-tab.active{background:var(--bg); color:var(--ink); border-color:var(--bg);}
   .day-tab.active .dn{color:var(--ink);}
@@ -664,7 +664,7 @@
     TRIP.forEach(function(d, i){
       var el = document.createElement("div");
       el.className = "day-tab" + (i === current ? " active" : "");
-      el.innerHTML = '<div class="dn">'+d.short+'</div><div class="dd">'+d.date.split(" ").slice(1).join(" ")+'</div>';
+      el.innerHTML = '<div class="dn">'+d.day+'</div><div class="dd">'+d.date.split(" ").slice(1).join(" ")+'</div>';
       el.addEventListener("click", function(){ current = i; render(); });
       strip.appendChild(el);
     });
@@ -721,10 +721,8 @@
         + '<div class="lbl">'+d.theme.split(",")[0].split(" — ")[0].split(" via")[0]+'</div>'
         + '<div class="sub">'+d.short+'</div></div>';
     }).join("");
-    var detailHtml = mapExpanded !== null
-      ? renderMapDetail(mapExpanded)
-      : '<div class="map-hint">👆 Tap any day below — see what to do, how you get there, and where you sleep that night.</div>';
-    return '<div class="map-detail-wrap" id="mapDetailWrap">'+detailHtml+'</div>'
+    var detailHtml = mapExpanded !== null ? renderMapDetail(mapExpanded) : '';
+    return (detailHtml ? '<div class="map-detail-wrap" id="mapDetailWrap">'+detailHtml+'</div>' : '')
       + '<div class="map-wrap" style="min-height:'+svgH+'px;">'
       + '<div class="map-title"><div class="eyebrow">The full yatra</div><h1>Ten days, two cities</h1></div>'
       + '<svg class="map-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M12 7l2.2 4.8L19 14l-4.8 2.2L12 21l-2.2-4.8L5 14l4.8-2.2z" fill="currentColor" opacity=".3"/></svg>'
